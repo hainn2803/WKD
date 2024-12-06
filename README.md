@@ -94,9 +94,9 @@ We evaluate WKD for image classification on ImageNet and CIFAR-100, following th
 
 | Teacher <br> Student |ResNet32x4 <br> ResNet8x4| WRN-40-2 <br> ShuffleNetV1|
 |:---------------:|:-----------------:|:-----------------:|
-| WKD-L | 70.66 | 73.08 |
-| WKD-F | 71.97 | 74.11 |
-| WKD-L+WKD-F | 70.66 | 73.08 |
+| WKD-L | 76.53 | 76.72 |
+| WKD-F | 76.77 | 77.36 |
+| WKD-L+WKD-F | 77.28 | 77.50 |
 
 
 
