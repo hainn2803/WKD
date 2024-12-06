@@ -129,7 +129,7 @@ Note: If you are unable to use Docker, you can try manually installing the PyTor
 
 Clone this repo in NGC Container:
 ```
-git clone 
+git clone https://github.com/JiamingLv/WKD.git
 cd WKD
 ```
 
