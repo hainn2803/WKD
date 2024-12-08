@@ -115,10 +115,10 @@ We evaluate WKD for image classification on ImageNet and CIFAR-100, following th
       <td>WKD-L</td>
       <td>76.53</td>
       <td><a href="https://drive.google.com/drive/folders/1cpevHYCFywcgzWiB62VyYrtLxXoWE7KS?usp=sharing">Model</td>
-      <td><a href="https://drive.google.com/file/d/1MzPrms-I5a86Bzd69R8vHMPPnvrW4zUx/view?usp=sharing">Log</td>
+      <td><a href="https://drive.google.com/file/d/1jNo8DwgTY1aj2mr-s1BpYJ-0bomI1Mfq/view?usp=sharing">Log</td>
       <td>76.72</td>
       <td><a href="https://drive.google.com/drive/folders/1oRkaCX22KvrRvvMSBk7sSKwIcH4xBZT-?usp=sharing">Model</td>
-      <td><a href="https://drive.google.com/file/d/1mY1a2TNvQ3E8KoccumbKtfyHh6SxiqfT/view?usp=sharing">Log</td>
+      <td><a href="https://drive.google.com/file/d/1UENkuRzeeBkx0spHcN_8U6eWy9JElks9/view?usp=sharing">Log</td>
     </tr>
     <tr>
       <!-- <td>Feature</td> -->
