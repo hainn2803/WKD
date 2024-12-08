@@ -44,8 +44,8 @@ We evaluate WKD for image classification on ImageNet and CIFAR-100, following th
     <tr>
       <!-- <th rowspan="2">Strategy</th> -->
       <th rowspan="2">Method</th>
-      <th colspan="3" style="text-align:center;">ResNet34-&gt;ResNet18</th>
-      <th colspan="3" style="text-align:center;">ResNet50-&gt;MobileNetV1</th>
+      <th colspan="3" style="text-align:center;">ResNet34 -&gt; ResNet18</th>
+      <th colspan="3" style="text-align:center;">ResNet50 -&gt; MobileNetV1</th>
     </tr>
     <tr>
       <th>Top-1</th>
@@ -92,11 +92,56 @@ We evaluate WKD for image classification on ImageNet and CIFAR-100, following th
 
 ### Image Classification On CIFAR-100
 
-| Teacher <br> Student |ResNet32x4 <br> ResNet8x4| WRN-40-2 <br> ShuffleNetV1|
-|:---------------:|:-----------------:|:-----------------:|
-| WKD-L | 76.53 | 76.72 |
-| WKD-F | 76.77 | 77.36 |
-| WKD-L+WKD-F | 77.28 | 77.50 |
+<table>
+  <thead>
+    <tr>
+      <!-- <th rowspan="2">Strategy</th> -->
+      <th rowspan="2">Method</th>
+      <th colspan="3" style="text-align:center;">ResNet32x4 -&gt; ResNet8x4</th>
+      <th colspan="3" style="text-align:center;">WRN-40-2 -&gt; ShuffleNetV1</th>
+    </tr>
+    <tr>
+      <th>Top-1</th>
+      <th>Model</th>
+      <th>Log</th>
+      <th>Top-1</th>
+      <th>Model</th>
+      <th>Log</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <!-- <td>Logit</td> -->
+      <td>WKD-L</td>
+      <td>76.53</td>
+      <td><a href="https://drive.google.com/drive/folders/1cpevHYCFywcgzWiB62VyYrtLxXoWE7KS?usp=sharing">Model</td>
+      <td><a href="https://drive.google.com/file/d/1MzPrms-I5a86Bzd69R8vHMPPnvrW4zUx/view?usp=sharing">Log</td>
+      <td>76.72</td>
+      <td><a href="https://drive.google.com/drive/folders/1oRkaCX22KvrRvvMSBk7sSKwIcH4xBZT-?usp=sharing">Model</td>
+      <td><a href="https://drive.google.com/file/d/1mY1a2TNvQ3E8KoccumbKtfyHh6SxiqfT/view?usp=sharing">Log</td>
+    </tr>
+    <tr>
+      <!-- <td>Feature</td> -->
+      <td>WKD-F</td>
+      <td>76.77</td>
+      <td><a href="https://drive.google.com/drive/folders/1cpevHYCFywcgzWiB62VyYrtLxXoWE7KS?usp=sharing">Model</td>
+      <td><a href="https://drive.google.com/file/d/1MzPrms-I5a86Bzd69R8vHMPPnvrW4zUx/view?usp=sharing">Log</td>
+      <td>77.36</td>
+      <td><a href="https://drive.google.com/drive/folders/1oRkaCX22KvrRvvMSBk7sSKwIcH4xBZT-?usp=sharing">Model</td>
+      <td><a href="https://drive.google.com/file/d/1mY1a2TNvQ3E8KoccumbKtfyHh6SxiqfT/view?usp=sharing">Log</td>
+    </tr>
+    <tr>
+      <!-- <td>Logit+Feature</td> -->
+      <td>WKD-L+WKD-F</td>
+      <td>77.28</td>
+      <td><a href="https://drive.google.com/drive/folders/1cpevHYCFywcgzWiB62VyYrtLxXoWE7KS?usp=sharing">Model</td>
+      <td><a href="https://drive.google.com/file/d/17BNcti4jQQTEv8qoCQF1ssBPBjiOHDtY/view?usp=sharing">Log</td>
+      <td>77.50</td>
+      <td><a href="https://drive.google.com/drive/folders/1oRkaCX22KvrRvvMSBk7sSKwIcH4xBZT-?usp=sharing">Model</td>
+      <td><a href="https://drive.google.com/file/d/1WcwJYcTNH2hYCR_SMvqa9Gnp0off8Ted/view?usp=sharing">Log</td>
+    </tr>
+  </tbody>
+</table>
 
 
 
