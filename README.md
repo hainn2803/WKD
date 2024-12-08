@@ -97,8 +97,8 @@ We evaluate WKD for image classification on ImageNet and CIFAR-100, following th
     <tr>
       <!-- <th rowspan="2">Strategy</th> -->
       <th rowspan="2">Method</th>
-      <th colspan="3" style="text-align:center;">ResNet32x4 -&gt; ResNet8x4</th>
-      <th colspan="3" style="text-align:center;">WRN-40-2 -&gt; ShuffleNetV1</th>
+      <th colspan="3" style="text-align:center;">RN32x4 -&gt; RN8x4</th>
+      <th colspan="3" style="text-align:center;">WRN40-2 -&gt; SNV1</th>
     </tr>
     <tr>
       <th>Top-1</th>
