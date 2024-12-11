@@ -3,7 +3,7 @@
 In this repo, we provide the offical implementation of this paper:
 
 [NeurIPS2024] "Wasserstein Distance Rivals Kullback-Leibler Divergence for Knowledge Distillation"
-[[Project]](http://peihuali.org/WKD.html)  [[Paper]](https://openreview.net/forum?id=1qfdCAXn6K&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DNeurIPS.cc%2F2024%2FConference%2FAuthors%23your-submissions)).
+[[Project]](http://peihuali.org/WKD)  [[Paper]](https://openreview.net/forum?id=1qfdCAXn6K&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DNeurIPS.cc%2F2024%2FConference%2FAuthors%23your-submissions)).
 
 
 <div style="text-align:center"><img src="imgs/illustration.gif" width="80%" ></div>
@@ -12,8 +12,7 @@ In this repo, we provide the offical implementation of this paper:
 # Introduction
 
 
-In this paper, we propose a methodology of `Wasserstein Distance (WD) for knowledge
-distillation`. It overcame the dominance of classical KL-Divergence in knowledge distillation. Specifically, 
+In this paper, We propose a novel methodology of Wasserstein distance based knowledge distillation (WKD), extending beyond the classical Kullback-Leibler divergece based one pioneered by Hinton et al. Specifically, 
 - We present a discrete WD based logit distillation method (`WKD-L`). It can leverage rich interrelations among classes via cross-category comparisons between predicted probabilities of the teacher and student, overcoming the downside of category-to-category KL divergence.
 
 - We introduce continuous WD into intermediate layers for feature distillation (`WKD-F`). It can effectively leverage geometric structure of the Riemannian space of Gaussians, better than geometryunaware KL-divergence.
@@ -27,7 +26,7 @@ If this repo is helpful for your research, please consider citing the paper:
 ```BibTeX
 @inproceedings{WKD_NeurIPS2024,
   title={Wasserstein Distance Rivals Kullback-Leibler Divergence for Knowledge Distillation},
-  author={Jiaming Lv, Haoyuan Yang and Peihua Li},
+  author={Jiaming Lv and Haoyuan Yang and Peihua Li},
   booktitle={Advances in Neural Information Processing Systems},
   year={2024}
 }
@@ -219,3 +218,14 @@ python setup.py develop
 # Acknowledgement
 
 - Thanks for DKD. We build this repo based on the [mdistiller provided by DKD](https://github.com/megvii-research/mdistiller).
+
+- We thank OFA for [the codebase](https://github.com/Hao840/OFAKD), NKD for [the codebase](https://github.com/yzd-v/cls_KD), CRD for [the codebase](https://github.com/HobbitLong/RepDistiller), and ReviewKD for [the codebase](https://github.com/dvlab-research/ReviewKD).
+
+- Thanks also go to authors of other papers who make their code publicly available.
+
+# Contact
+If you have any questions or suggestions, please contact us:
+
+- Jiaming Lv (ljm_vlg@mail.dlut.edu.cn)
+
+- Haoyuan Yang (yanghaoyuan@mail.dlut.edu.cn)
