@@ -3,7 +3,7 @@
 In this repo, we provide the offical implementation of this paper:
 
 [NeurIPS2024] "Wasserstein Distance Rivals Kullback-Leibler Divergence for Knowledge Distillation"
-[[Project]](http://peihuali.org/WKD)  [[Paper]](https://openreview.net/forum?id=1qfdCAXn6K&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DNeurIPS.cc%2F2024%2FConference%2FAuthors%23your-submissions)).
+[[Project]](http://peihuali.org/WKD)  [[Paper]](https://arxiv.org/abs/2412.08139).
 
 
 <div style="text-align:center"><img src="imgs/illustration.gif" width="80%" ></div>
