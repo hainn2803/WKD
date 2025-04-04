@@ -7,7 +7,7 @@ from ._common import *
 
 import math
 import numpy as np
-
+from ot import Batch_Sliced_Wasserstein_Distance
 
 def sinkhorn(w1, w2, cost, reg=0.05, max_iter=10):
     bs, dim = w1.shape
@@ -103,43 +103,35 @@ def adaptive_avg_std_pool2d(input_tensor, out_size=(1, 1), eps=1e-5):
     return avg_pooled_tensor, cov_pooled_tensor
 
 
-def wkd_feature_loss(f_s, f_t, eps=1e-5, grid=1):
-    if grid == 1:
-        f_s_avg, f_t_avg = f_s.mean(dim=(-1,-2)), f_t.mean(dim=(-1,-2))
-        f_s_std, f_t_std = torch.sqrt(f_s.var(dim=(-1,-2)) + eps), torch.sqrt(f_t.var(dim=(-1,-2)) + eps)
-        mean_loss = F.mse_loss(f_s_avg, f_t_avg, reduction='sum') / f_s.size(0)
-        cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / f_s.size(0)
-    elif grid > 1:
-        f_s_avg, f_s_std = adaptive_avg_std_pool2d(f_s, out_size=(grid, grid), eps=eps)
-        f_t_avg, f_t_std = adaptive_avg_std_pool2d(f_t, out_size=(grid, grid), eps=eps)
-        mean_loss = F.mse_loss(f_s_avg, f_t_avg, reduction='sum') / (grid**2 * f_s.size(0))
-        cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / (grid**2 * f_s.size(0))
-
-    return mean_loss, cov_loss
+def wkd_feature_loss(f_s, f_t):
+    flatten_f_s = f_s.flatten(-2, -1) # (batch_size, num_feats, dims)
+    flatten_f_t = f_t.flatten(-2, -1) # (batch_size, num_feats, dims)
+    sliced_ws = Batch_Sliced_Wasserstein_Distance(X=flatten_f_s, Y=flatten_f_t, num_projections=1000, p=2, device=f_s.device)
+    return torch.mean(sliced_ws)
 
 
-class WKD(Distiller):
+class MD(Distiller):
     """Distilling the Knowledge in a Neural Network"""
 
     def __init__(self, student, teacher, cfg):
-        super(WKD, self).__init__(student, teacher)
+        super(MD, self).__init__(student, teacher)
         self.cfg = cfg
 
-        self.ce_loss_weight = cfg.WKD.LOSS.CE_WEIGHT
-        self.wkd_logit_loss_weight = cfg.WKD.LOSS.WKD_LOGIT_WEIGHT
-        self.wkd_feature_loss_weight = cfg.WKD.LOSS.WKD_FEAT_WEIGHT
-        self.loss_cosine_decay_epoch = cfg.WKD.LOSS.COSINE_DECAY_EPOCH
+        self.ce_loss_weight = cfg.MD.LOSS.CE_WEIGHT
+        self.wkd_logit_loss_weight = cfg.MD.LOSS.WKD_LOGIT_WEIGHT
+        self.wkd_feature_loss_weight = cfg.MD.LOSS.WKD_FEAT_WEIGHT
+        self.loss_cosine_decay_epoch = cfg.MD.LOSS.COSINE_DECAY_EPOCH
 
         self.enable_wkdl = self.wkd_logit_loss_weight > 0
         self.enable_wkdf = self.wkd_feature_loss_weight > 0
 
-        # WKD-L: WD for logits distillation
+        # MD-L: WD for logits distillation
         if self.enable_wkdl:
-            self.temperature = cfg.WKD.TEMPERATURE
-            self.sinkhorn_lambda = cfg.WKD.SINKHORN.LAMBDA
-            self.sinkhorn_iter = cfg.WKD.SINKHORN.ITER
+            self.temperature = cfg.MD.TEMPERATURE
+            self.sinkhorn_lambda = cfg.MD.SINKHORN.LAMBDA
+            self.sinkhorn_iter = cfg.MD.SINKHORN.ITER
 
-            if cfg.WKD.COST_MATRIX == "fc":
+            if cfg.MD.COST_MATRIX == "fc":
                 print("Using fc weight of teacher model as category prototype")
                 self.prototype = self.teacher.fc.weight
                 # caluate cosine similarity
@@ -147,25 +139,25 @@ class WKD(Distiller):
                 cosine_sim = proto_normed.matmul(proto_normed.transpose(-1, -2))
                 self.dist = 1 - cosine_sim
             else:
-                print("Using "+cfg.WKD.COST_MATRIX+" as cost matrix")
-                path_gd = cfg.WKD.COST_MATRIX_PATH
+                print("Using "+cfg.MD.COST_MATRIX+" as cost matrix")
+                path_gd = cfg.MD.COST_MATRIX_PATH
                 self.dist = torch.load(path_gd).cuda().detach()
                 
-            if cfg.WKD.COST_MATRIX_SHARPEN != 0:
-                print("Sharpen ", cfg.WKD.COST_MATRIX_SHARPEN)
-                sim = torch.exp(-cfg.WKD.COST_MATRIX_SHARPEN*self.dist)
+            if cfg.MD.COST_MATRIX_SHARPEN != 0:
+                print("Sharpen ", cfg.MD.COST_MATRIX_SHARPEN)
+                sim = torch.exp(-cfg.MD.COST_MATRIX_SHARPEN*self.dist)
                 self.dist = 1 - sim
 
-        # WKD-F: WD for feature distillation
+        # MD-F: WD for feature distillation
         if self.enable_wkdf:
-            self.wkd_feature_mean_cov_ratio = cfg.WKD.MEAN_COV_RATIO
-            self.eps = cfg.WKD.EPS
+            self.wkd_feature_mean_cov_ratio = cfg.MD.MEAN_COV_RATIO
+            self.eps = cfg.MD.EPS
 
-            feat_s_shapes, feat_t_shapes = get_feat_shapes(self.student, self.teacher, cfg.WKD.INPUT_SIZE)
+            feat_s_shapes, feat_t_shapes = get_feat_shapes(self.student, self.teacher, cfg.MD.INPUT_SIZE)
 
-            self.hint_layer = cfg.WKD.HINT_LAYER
-            self.projector = cfg.WKD.PROJECTOR
-            self.spatial_grid = cfg.WKD.SPATIAL_GRID
+            self.hint_layer = cfg.MD.HINT_LAYER
+            self.projector = cfg.MD.PROJECTOR
+            self.spatial_grid = cfg.MD.SPATIAL_GRID
             if self.projector == "bottleneck":
                 self.conv_reg = ConvRegBottleNeck(
                     feat_s_shapes[self.hint_layer], feat_t_shapes[self.hint_layer], c_hidden=256, use_relu=True, use_bn=True
@@ -188,7 +180,8 @@ class WKD(Distiller):
             return student_params
 
     def get_extra_parameters(self):
-        return 0
+        num_trainable_params = sum(p.numel() for p in self.conv_reg.parameters() if p.requires_grad)
+        return num_trainable_params
 
     def forward_train(self, image, target, **kwargs):
         with torch.cuda.amp.autocast():
@@ -222,7 +215,7 @@ class WKD(Distiller):
             self.wkd_logit_loss_weight_1 = self.wkd_logit_loss_weight
             self.wkd_feature_loss_weight_1 = self.wkd_feature_loss_weight
 
-        loss_wkd = 0
+        loss_wkd = torch.tensor(0.0).to("cuda")
         # WD for logits distillation
         if self.enable_wkdl:
             logits_teacher = logits_teacher.to(torch.float32)
@@ -236,10 +229,9 @@ class WKD(Distiller):
             f_s = feats_student["feats"][self.hint_layer].to(torch.float32) # torch.Size([64, 256, 8, 8])
             f_s = self.conv_reg(f_s) # torch.Size([64, 256, 8, 8])
             
-            mean_loss, cov_loss = wkd_feature_loss(f_s, f_t, self.eps, grid=self.spatial_grid)
+            sliced_ws = wkd_feature_loss(f_s, f_t)
 
-            loss_wkd_feat = self.wkd_feature_mean_cov_ratio * mean_loss + cov_loss
-            loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat
+            loss_wkd += self.wkd_feature_loss_weight_1 * sliced_ws
 
 
         losses_dict = {

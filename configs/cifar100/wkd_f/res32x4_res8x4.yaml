@@ -1,7 +1,7 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "wkd_f,res32x4,res8x4"
-  PROJECT: "cifar100_baselines"
+  TAG: "wkd_f,res32x4,res8x4,lr0.05,wkd0.006"
+  PROJECT: "cifar100_wkd"
   SEED: 10
 DISTILLER:
   TYPE: "WKD"
@@ -21,7 +21,7 @@ WKD:
   LOSS:
     CE_WEIGHT: 1.0
     WKD_LOGIT_WEIGHT: 0.0
-    WKD_FEAT_WEIGHT: 0.08
+    WKD_FEAT_WEIGHT: 0.006
     COSINE_DECAY_EPOCH: 150
   EPS: 0.00001
   HINT_LAYER: -1

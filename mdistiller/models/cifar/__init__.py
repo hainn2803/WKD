@@ -17,6 +17,8 @@ from .mobilenetv2 import mobile_half
 from .ShuffleNetv1 import ShuffleV1
 from .ShuffleNetv2 import ShuffleV2
 
+from .swin_transformer import swin_t
+
 
 cifar100_model_prefix = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 
@@ -45,6 +47,9 @@ cifar_model_dict = {
         cifar100_model_prefix + "wrn_40_2_vanilla/ckpt_epoch_240.pth",
     ),
     "vgg13": (vgg13_bn, cifar100_model_prefix + "vgg13_vanilla/ckpt_epoch_240.pth"),
+
+    "swin-t": (swin_t, cifar100_model_prefix + "swin_tiny_patch4_window7_224_cifar100.pth"),
+
     # students
     "resnet8": (resnet8, None),
     "resnet14": (resnet14, None),
@@ -52,7 +57,7 @@ cifar_model_dict = {
     "resnet32": (resnet32, None),
     "resnet44": (resnet44, None),
     "resnet8x4": (resnet8x4, None),
-    "ResNet18": (ResNet18, None),
+    "resnet18": (ResNet18, None),
     "wrn_16_1": (wrn_16_1, None),
     "wrn_16_2": (wrn_16_2, None),
     "wrn_40_1": (wrn_40_1, None),

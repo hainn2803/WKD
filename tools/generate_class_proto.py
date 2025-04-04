@@ -48,9 +48,9 @@ def genarate_class_features(loader, distiller, num_class=100, feature_type='logi
             
             for i in range(logits.shape[0]):
                 if feature_type == 'logit':
-                    class_feat[target[i]].append(logits[i, ...].cpu())
+                    class_feat[target[i]].append(logits[i, ...].cpu()) # shape == (100)
                 else:
-                    class_feat[target[i]].append(feats['feats'][-1][i, ...].cpu())
+                    class_feat[target[i]].append(feats['feats'][-1][i, ...].cpu()) # shape == (256, 8, 8)
 
         if feature_type == 'logit':
             min_samples = min([len(class_feat[i]) for i in range(num_class)])
@@ -67,7 +67,7 @@ def genarate_class_features(loader, distiller, num_class=100, feature_type='logi
                 class_feat_reshaped.append(feats)
             class_feat=torch.stack(class_feat_reshaped, dim=0)
 
-    print(class_feat.shape)
+    print(class_feat.shape) # shape == ([100, 32000, 256]) if features else shape == ([100, 500, 100])
     return class_feat
 
 
@@ -130,6 +130,7 @@ if __name__ == "__main__":
 
     elif args.dataset == "cifar100":
         data_folder = cifar100.get_data_folder()
+        print(data_folder)
         transform = cifar100.get_cifar100_test_transform()
         train_set = cifar100.CIFAR100Instance(root=data_folder, 
                                               download=True, 

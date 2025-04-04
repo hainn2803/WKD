@@ -6,7 +6,7 @@ from PIL import Image
 
 
 def get_data_folder():
-    data_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../data")
+    data_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/cifar100")
     if not os.path.isdir(data_folder):
         os.makedirs(data_folder)
     return data_folder
@@ -112,6 +112,30 @@ class CIFAR100InstanceSample(datasets.CIFAR100):
             )
             sample_idx = np.hstack((np.asarray([pos_idx]), neg_idx))
             return img, target, index, sample_idx
+
+
+# def get_cifar100_train_transform():
+#     train_transform = transforms.Compose(
+#         [
+#             transforms.Resize(256),
+#             transforms.RandomCrop(224),
+#             transforms.RandomHorizontalFlip(),
+#             transforms.ToTensor(),
+#             transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
+#         ]
+#     )
+
+#     return train_transform
+
+
+# def get_cifar100_test_transform():
+#     return transforms.Compose(
+#         [
+#             transforms.Resize((224, 224)),
+#             transforms.ToTensor(),
+#             transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
+#         ]
+#     )
 
 
 def get_cifar100_train_transform():

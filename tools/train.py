@@ -138,6 +138,7 @@ def main(cfg, resume, opts):
                 pretrain_model_path is not None
             ), "no pretrain model for teacher {}".format(cfg.DISTILLER.TEACHER)
             model_teacher = net(num_classes=num_classes)
+            # model_teacher.load_state_dict(load_checkpoint(pretrain_model_path)["state_dict"])
             model_teacher.load_state_dict(load_checkpoint(pretrain_model_path)["model"])
             model_student = cifar_model_dict[cfg.DISTILLER.STUDENT][0](
                 num_classes=num_classes

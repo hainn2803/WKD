@@ -52,7 +52,7 @@ class Vanilla(nn.Module):
 
     def forward_train(self, image, target, **kwargs):
         with torch.cuda.amp.autocast():
-            logits_student = self.student(image)
+            logits_student, _ = self.student(image)
         loss = F.cross_entropy(logits_student, target)
         return logits_student, {"loss_ce": loss}
 
