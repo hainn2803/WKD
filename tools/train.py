@@ -39,7 +39,7 @@ def get_imagenet_dataloaders(data_folder, batch_size, val_batch_size, num_worker
     num_data = len(train_set)
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, 
         shuffle=True, num_workers=num_workers, pin_memory=True, worker_init_fn=worker_init_fn, generator=generator,)
-    test_loader = get_imagenet_val_loader(val_batch_size, mean, std)
+    test_loader = get_imagenet_val_loader(data_folder, val_batch_size, mean, std)
     return train_loader, test_loader, num_data
 
 

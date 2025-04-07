@@ -95,7 +95,7 @@ def get_imagenet_test_transform(mean, std):
     )
     return test_transform
 
-def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers,
+def get_imagenet_dataloaders(data_folder, batch_size, val_batch_size, num_workers,
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     train_transform = get_imagenet_train_transform(mean, std)
     train_folder = os.path.join(data_folder, 'train')
@@ -103,10 +103,10 @@ def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers,
     num_data = len(train_set)
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, 
         shuffle=True, num_workers=num_workers, pin_memory=False)
-    test_loader = get_imagenet_val_loader(val_batch_size, mean, std)
+    test_loader = get_imagenet_val_loader(data_folder, val_batch_size, mean, std)
     return train_loader, test_loader, num_data
 
-def get_imagenet_dataloaders_sample(batch_size, val_batch_size, num_workers, k=4096, 
+def get_imagenet_dataloaders_sample(data_folder, batch_size, val_batch_size, num_workers, k=4096, 
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     train_transform = get_imagenet_train_transform(mean, std)
     train_folder = os.path.join(data_folder, 'train')
@@ -114,10 +114,10 @@ def get_imagenet_dataloaders_sample(batch_size, val_batch_size, num_workers, k=4
     num_data = len(train_set)
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, 
         shuffle=True, num_workers=num_workers, pin_memory=True)
-    test_loader = get_imagenet_val_loader(val_batch_size, mean, std)
+    test_loader = get_imagenet_val_loader(data_folder, val_batch_size, mean, std)
     return train_loader, test_loader, num_data
 
-def get_imagenet_val_loader(val_batch_size, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+def get_imagenet_val_loader(data_folder, val_batch_size, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     test_transform = get_imagenet_test_transform(mean, std)
     test_folder = os.path.join(data_folder, 'val')
     test_set = ImageFolder(test_folder, transform=test_transform)
