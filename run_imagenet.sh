@@ -19,4 +19,6 @@ eval "$(conda shell.bash hook)"
 conda activate /lustre/scratch/client/movian/research/users/hainn14/envs/wkd
 cd /lustre/scratch/client/movian/research/users/hainn14/WKD
 
+export TORCH_HOME=/lustre/scratch/client/movian/research/users/hainn14/WKD/download_ckpts
+
 WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml
