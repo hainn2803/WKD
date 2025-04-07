@@ -1,6 +1,6 @@
 # single gpu
 CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg ./configs/imagenet/r34_r18/wkd_l.yaml
-CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg ./configs/imagenet/r34_r18/wkd_f.yaml
+CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml
 CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg ./configs/imagenet/r34_r18/wkd_lf.yaml
 CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg ./configs/imagenet/r50_mv1/wkd_l.yaml
 CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg ./configs/imagenet/r50_mv1/wkd_f.yaml

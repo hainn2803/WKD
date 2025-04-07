@@ -4,7 +4,7 @@ import torch
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
 
-data_folder = 'data/imagenet'
+data_folder = 'mdistiller/dataset/data/imagenet'
 
 
 class ImageNet(ImageFolder):

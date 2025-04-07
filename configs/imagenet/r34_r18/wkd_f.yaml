@@ -1,7 +1,7 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "wkd_f,res34,res18"
-  PROJECT: "imagenet_baselines"
+  TAG: "wkd_f,res34,res18,lr0.1,wkd0.02,inter0"
+  PROJECT: "imagenet_wkd_interbatch"
 DATASET:
   TYPE: "imagenet"
   NUM_WORKERS: 8

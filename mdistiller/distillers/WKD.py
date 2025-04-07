@@ -7,6 +7,7 @@ from ._common import *
 
 import math
 import numpy as np
+from ot import generate_uniform_unit_sphere_projections, Wasserstein_One_Dimension
 
 
 def sinkhorn(w1, w2, cost, reg=0.05, max_iter=10):
@@ -116,6 +117,53 @@ def wkd_feature_loss(f_s, f_t, eps=1e-5, grid=1):
         cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / (grid**2 * f_s.size(0))
 
     return mean_loss, cov_loss
+
+
+def inter_batch_loss_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_projections=10000, p=2):
+    chunk = 1000
+    if num_projections < chunk:
+        chunk = num_projections
+        chunk_num_projections = 1
+    else:
+        chunk_num_projections = num_projections // chunk
+
+    sw_chunk = 0
+    d = mu1s.shape[1]
+    for i in range(chunk_num_projections):
+        theta = generate_uniform_unit_sphere_projections(dim=d, num_projection=chunk, dtype=torch.float32, device=mu1s.device)
+        prod_mu1s = torch.matmul(mu1s, theta.transpose(0, 1))
+        prod_mu2s = torch.matmul(mu2s, theta.transpose(0, 1))
+        prod_Sigma1s = torch.sqrt(torch.matmul(Sigma1s, (theta**2).transpose(0, 1)))
+        prod_Sigma2s = torch.sqrt(torch.matmul(Sigma2s, (theta**2).transpose(0, 1)))
+        X = torch.stack([prod_mu1s, torch.log(prod_Sigma1s)], dim=-1)
+        Y = torch.stack([prod_mu2s, torch.log(prod_Sigma2s)], dim=-1)
+        psi = generate_uniform_unit_sphere_projections(dim=2, num_projection=chunk, dtype=torch.float32, device=mu1s.device)
+        X_projection = torch.sum(X * psi.unsqueeze(0), dim=-1) # (batch_size, chunk)
+        Y_projection = torch.sum(Y * psi.unsqueeze(0), dim=-1) # (batch_size, chunk)
+        w_1d = Wasserstein_One_Dimension(X=X_projection, Y=Y_projection, p=p) # (batch_size, chunk)
+        sw_chunk += torch.sum(torch.pow(w_1d, p))
+    return torch.pow(sw_chunk / num_projections, 1/p)
+
+
+def wkd_feature_loss_with_interbatch(f_s, f_t, eps=1e-5, grid=1):
+    if grid == 1:
+        f_s_avg, f_t_avg = f_s.mean(dim=(-1,-2)), f_t.mean(dim=(-1,-2))
+        f_s_std, f_t_std = torch.sqrt(f_s.var(dim=(-1,-2)) + eps), torch.sqrt(f_t.var(dim=(-1,-2)) + eps)
+        mean_loss = F.mse_loss(f_s_avg, f_t_avg, reduction='sum') / f_s.size(0)
+        cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / f_s.size(0)
+        interbatch_cost = inter_batch_loss_gaussian(mu1s=f_s_avg, Sigma1s=f_s_std**2, mu2s=f_t_avg, Sigma2s=f_t_std**2)
+
+        return mean_loss, cov_loss, interbatch_cost
+    elif grid > 1:
+        f_s_avg, f_s_std = adaptive_avg_std_pool2d(f_s, out_size=(grid, grid), eps=eps)
+        f_t_avg, f_t_std = adaptive_avg_std_pool2d(f_t, out_size=(grid, grid), eps=eps)
+        mean_loss = F.mse_loss(f_s_avg, f_t_avg, reduction='sum') / (grid**2 * f_s.size(0))
+        cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / (grid**2 * f_s.size(0))
+
+        # print(f_s_avg.shape, f_s_std.shape, f_t_avg.shape, f_t_std.shape, mean_loss.shape, cov_loss.shape)
+
+        return mean_loss, cov_loss
+
 
 
 class WKD(Distiller):
@@ -236,7 +284,7 @@ class WKD(Distiller):
             f_s = feats_student["feats"][self.hint_layer].to(torch.float32) # torch.Size([64, 256, 8, 8])
             f_s = self.conv_reg(f_s) # torch.Size([64, 256, 8, 8])
             
-            mean_loss, cov_loss = wkd_feature_loss(f_s, f_t, self.eps, grid=self.spatial_grid)
+            mean_loss, cov_loss = wkd_feature_loss_with_interbatch(f_s, f_t, self.eps, grid=self.spatial_grid)
 
             loss_wkd_feat = self.wkd_feature_mean_cov_ratio * mean_loss + cov_loss
             loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat
@@ -244,7 +292,7 @@ class WKD(Distiller):
 
         losses_dict = {
             "loss_ce": loss_ce,
-            "loss_kd": loss_wkd,
+            "loss_kd": loss_wkd
         }
 
         return logits_student, losses_dict
