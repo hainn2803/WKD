@@ -30,7 +30,7 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 
-def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers, worker_init_fn, generator,input_size=224,
+def get_imagenet_dataloaders(data_folder, batch_size, val_batch_size, num_workers, worker_init_fn, generator,input_size=224,
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     train_transform = get_imagenet_train_transform(mean, std, input_size)
     train_folder = os.path.join(data_folder, 'train')
@@ -43,9 +43,8 @@ def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers, worker_ini
     return train_loader, test_loader, num_data
 
 
-def get_cifar100_dataloaders(batch_size, val_batch_size, num_workers, worker_init_fn, generator,
+def get_cifar100_dataloaders(data_folder, batch_size, val_batch_size, num_workers, worker_init_fn, generator,
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
-    data_folder = get_data_folder()
     train_transform = get_cifar100_train_transform()
     test_transform = get_cifar100_test_transform()
     train_set = CIFAR100Instance(
@@ -95,6 +94,7 @@ def main(cfg, resume, opts):
     g.manual_seed(cfg.EXPERIMENT.SEED)
     if cfg.DATASET.TYPE == "imagenet":
         train_loader, val_loader, num_data = get_imagenet_dataloaders(
+                    data_folder=cfg.DATA_FOLDER,
                     batch_size=cfg.SOLVER.BATCH_SIZE,
                     val_batch_size=cfg.DATASET.TEST.BATCH_SIZE,
                     num_workers=cfg.DATASET.NUM_WORKERS,
@@ -103,6 +103,7 @@ def main(cfg, resume, opts):
                     input_size=cfg.DATASET.INPUT_SIZE,)
     else:
         train_loader, val_loader, num_data = get_cifar100_dataloaders(
+                    data_folder=cfg.DATA_FOLDER,
                     batch_size=cfg.SOLVER.BATCH_SIZE,
                     val_batch_size=cfg.DATASET.TEST.BATCH_SIZE,
                     num_workers=cfg.DATASET.NUM_WORKERS,
@@ -178,10 +179,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("training for knowledge distillation.")
     parser.add_argument("--cfg", type=str, default="")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--dataset", type=str, default="mdistiller/dataset/data/imagenet")
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
 
     args = parser.parse_args()
     cfg.merge_from_file(args.cfg)
     cfg.merge_from_list(args.opts)
+    cfg.DATA_FOLDER = args.dataset
     cfg.freeze()
     main(cfg, args.resume, args.opts)

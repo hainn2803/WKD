@@ -1,7 +1,7 @@
 #!/bin/bash -e
 #SBATCH --job-name=img_base
-#SBATCH --output=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagnet_baseline.out
-#SBATCH --error=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagnet_baseline.err
+#SBATCH --output=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_baseline.out
+#SBATCH --error=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_baseline.err
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --mem-per-gpu=125G
@@ -21,4 +21,4 @@ cd /lustre/scratch/client/movian/research/users/hainn14/WKD
 
 export TORCH_HOME=/lustre/scratch/client/movian/research/users/hainn14/WKD/download_ckpts
 
-WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml
+WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml --dataset /lustre/scratch/client/movian/research/users/hainn14/dataset/imagenet

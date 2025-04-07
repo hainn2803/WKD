@@ -153,16 +153,31 @@ def wkd_feature_loss_with_interbatch(f_s, f_t, eps=1e-5, grid=1):
         cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / f_s.size(0)
         interbatch_cost = inter_batch_loss_gaussian(mu1s=f_s_avg, Sigma1s=f_s_std**2, mu2s=f_t_avg, Sigma2s=f_t_std**2)
 
-        return mean_loss, cov_loss, interbatch_cost
-    elif grid > 1:
-        f_s_avg, f_s_std = adaptive_avg_std_pool2d(f_s, out_size=(grid, grid), eps=eps)
-        f_t_avg, f_t_std = adaptive_avg_std_pool2d(f_t, out_size=(grid, grid), eps=eps)
-        mean_loss = F.mse_loss(f_s_avg, f_t_avg, reduction='sum') / (grid**2 * f_s.size(0))
-        cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / (grid**2 * f_s.size(0))
-
         # print(f_s_avg.shape, f_s_std.shape, f_t_avg.shape, f_t_std.shape, mean_loss.shape, cov_loss.shape)
 
-        return mean_loss, cov_loss
+        return mean_loss, cov_loss, interbatch_cost
+    elif grid > 1:
+        f_s_avg, f_s_std = adaptive_avg_std_pool2d(f_s, out_size=(grid, grid), eps=eps) # [batch_size, 512, 4, 4], [batch_size, 512, 4, 4]
+        f_t_avg, f_t_std = adaptive_avg_std_pool2d(f_t, out_size=(grid, grid), eps=eps) # [batch_size, 512, 4, 4], [batch_size, 512, 4, 4]
+        mean_loss = F.mse_loss(f_s_avg, f_t_avg, reduction='sum') / (grid**2 * f_s.size(0)) # a number
+        cov_loss = F.mse_loss(f_s_std, f_t_std, reduction='sum') / (grid**2 * f_s.size(0)) # a number
+
+        batch_size, dim, _, _ = f_s_avg.shape[0], f_s_avg.shape[1], f_s_avg.shape[2], f_s_avg.shape[3]
+
+        # print(f_s_avg.shape, f_s_std.shape, f_t_avg.shape, f_t_std.shape, mean_loss.shape, cov_loss.shape)
+        # torch.Size([256, 512, 4, 4]) torch.Size([256, 512, 4, 4]) torch.Size([256, 512, 4, 4]) torch.Size([256, 512, 4, 4]) torch.Size([]) torch.Size([])
+
+        f_s_avg = f_s_avg.reshape(batch_size, dim, -1).permute(0, 2, 1).reshape(-1, dim)
+        f_t_avg = f_t_avg.reshape(batch_size, dim, -1).permute(0, 2, 1).reshape(-1, dim)
+        f_s_std = f_s_std.reshape(batch_size, dim, -1).permute(0, 2, 1).reshape(-1, dim)
+        f_t_std = f_t_std.reshape(batch_size, dim, -1).permute(0, 2, 1).reshape(-1, dim)
+
+        # print(f_s_avg.shape, f_s_std.shape, f_t_avg.shape, f_t_std.shape, mean_loss.shape, cov_loss.shape)
+        # torch.Size([4096, 512]) torch.Size([4096, 512]) torch.Size([4096, 512]) torch.Size([4096, 512]) torch.Size([]) torch.Size([])
+
+        interbatch_cost = inter_batch_loss_gaussian(mu1s=f_s_avg, Sigma1s=f_s_std**2, mu2s=f_t_avg, Sigma2s=f_t_std**2)
+
+        return mean_loss, cov_loss, interbatch_cost
 
 
 
@@ -284,10 +299,10 @@ class WKD(Distiller):
             f_s = feats_student["feats"][self.hint_layer].to(torch.float32) # torch.Size([64, 256, 8, 8])
             f_s = self.conv_reg(f_s) # torch.Size([64, 256, 8, 8])
             
-            mean_loss, cov_loss = wkd_feature_loss_with_interbatch(f_s, f_t, self.eps, grid=self.spatial_grid)
+            mean_loss, cov_loss, interbatch_cost = wkd_feature_loss_with_interbatch(f_s, f_t, self.eps, grid=self.spatial_grid)
 
             loss_wkd_feat = self.wkd_feature_mean_cov_ratio * mean_loss + cov_loss
-            loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat
+            loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat + 10 * interbatch_cost
 
 
         losses_dict = {
