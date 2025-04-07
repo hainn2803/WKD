@@ -1,0 +1,1 @@
+WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml
