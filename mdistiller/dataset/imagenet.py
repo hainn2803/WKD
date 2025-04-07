@@ -5,6 +5,7 @@ from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
 
 data_folder = 'mdistiller/dataset/data/imagenet'
+data_folder = "/lustre/scratch/client/movian/research/users/hainn14/WKD/mdistiller/dataset/data/imagenet"
 
 
 class ImageNet(ImageFolder):
