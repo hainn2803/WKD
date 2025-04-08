@@ -303,7 +303,6 @@ class WKD(Distiller):
             mean_loss, cov_loss, interbatch_cost = wkd_feature_loss_with_interbatch(f_s, f_t, self.eps, grid=self.spatial_grid)
 
             loss_wkd_feat = self.wkd_feature_mean_cov_ratio * mean_loss + cov_loss
-            print(self.MD)
             loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat + self.MD * interbatch_cost
 
 
