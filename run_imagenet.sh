@@ -1,7 +1,7 @@
 #!/bin/bash -e
-#SBATCH --job-name=img_01inter
-#SBATCH --output=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_01inter.out
-#SBATCH --error=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_01inter.err
+#SBATCH --job-name=img_1inter
+#SBATCH --output=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_1inter.out
+#SBATCH --error=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_1inter.err
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --mem-per-gpu=125G
@@ -21,4 +21,4 @@ cd /lustre/scratch/client/movian/research/users/hainn14/WKD
 
 export TORCH_HOME=/lustre/scratch/client/movian/research/users/hainn14/WKD/download_ckpts
 
-WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml --dataset /lustre/scratch/client/movian/research/users/hainn14/dataset/imagenet --MD 0.1
+WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f.yaml --dataset /lustre/scratch/client/movian/research/users/hainn14/dataset/imagenet --MD 1.0
