@@ -186,6 +186,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     cfg.merge_from_file(args.cfg)
     cfg.MD = args.MD
+    print(f"MD = cfg.MD")
     cfg.merge_from_list(args.opts)
     cfg.DATA_FOLDER = args.dataset
     cfg.freeze()
