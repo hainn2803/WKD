@@ -181,9 +181,11 @@ if __name__ == "__main__":
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--dataset", type=str, default="mdistiller/dataset/data/imagenet")
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
+    parser.add_argument('--MD', type=float, default=1.0, help='My Duyen')
 
     args = parser.parse_args()
     cfg.merge_from_file(args.cfg)
+    cfg.MD = args.MD
     cfg.merge_from_list(args.opts)
     cfg.DATA_FOLDER = args.dataset
     cfg.freeze()

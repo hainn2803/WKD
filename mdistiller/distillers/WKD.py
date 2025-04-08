@@ -195,6 +195,7 @@ class WKD(Distiller):
 
         self.enable_wkdl = self.wkd_logit_loss_weight > 0
         self.enable_wkdf = self.wkd_feature_loss_weight > 0
+        self.MD = cfg.MD
 
         # WKD-L: WD for logits distillation
         if self.enable_wkdl:
@@ -302,7 +303,8 @@ class WKD(Distiller):
             mean_loss, cov_loss, interbatch_cost = wkd_feature_loss_with_interbatch(f_s, f_t, self.eps, grid=self.spatial_grid)
 
             loss_wkd_feat = self.wkd_feature_mean_cov_ratio * mean_loss + cov_loss
-            loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat + 10 * interbatch_cost
+            print(self.MD)
+            loss_wkd += self.wkd_feature_loss_weight_1 * loss_wkd_feat + self.MD * interbatch_cost
 
 
         losses_dict = {
