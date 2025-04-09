@@ -33,8 +33,7 @@ test.py
 *.png
 cac
 
-cifar100_*
-imagenet_*
+result*
 wkd_cost_matrix_init
 wkd_cost_matrix
 
