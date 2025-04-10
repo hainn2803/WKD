@@ -38,7 +38,7 @@ def seed_worker(worker_id):
     random.seed(worker_seed)
 
 
-def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers, worker_init_fn, generator,input_size=224,
+def get_imagenet_dataloaders(data_folder, batch_size, val_batch_size, num_workers, worker_init_fn, generator,input_size=224,
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     train_transform = get_imagenet_train_transform(mean, std, input_size)
     train_folder = os.path.join(data_folder, 'train')
@@ -48,7 +48,7 @@ def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers, worker_ini
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, 
         shuffle=False, num_workers=num_workers, pin_memory=True, worker_init_fn=worker_init_fn, generator=generator, sampler=train_sampler)
-    test_loader = get_imagenet_val_loader(val_batch_size, mean, std)
+    test_loader = get_imagenet_val_loader(data_folder, val_batch_size, mean, std)
     return train_loader, test_loader, num_data
 
 
@@ -112,6 +112,7 @@ def main(cfg, resume, opts):
     # init dataloader & models
     if cfg.DATASET.TYPE == "imagenet":
         train_loader, val_loader, num_data = get_imagenet_dataloaders(
+                    data_folder=cfg.DATA_FOLDER,
                     batch_size=cfg.SOLVER.BATCH_SIZE,
                     val_batch_size=cfg.DATASET.TEST.BATCH_SIZE,
                     num_workers=cfg.DATASET.NUM_WORKERS,
@@ -197,10 +198,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("training for knowledge distillation.")
     parser.add_argument("--cfg", type=str, default="")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--dataset", type=str, default="mdistiller/dataset/data/imagenet")
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
+    parser.add_argument('--MD', type=float, default=1.0, help='My Duyen')
 
     args = parser.parse_args()
     cfg.merge_from_file(args.cfg)
+    cfg.MD = args.MD
+    print(f"MD = {cfg.MD}")
     cfg.merge_from_list(args.opts)
+    cfg.DATA_FOLDER = args.dataset
     cfg.freeze()
     main(cfg, args.resume, args.opts)

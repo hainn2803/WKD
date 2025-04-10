@@ -21,4 +21,4 @@ cd /lustre/scratch/client/movian/research/users/hainn14/WKD
 
 export TORCH_HOME=/lustre/scratch/client/movian/research/users/hainn14/WKD/download_ckpts
 
-WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f1.yaml --dataset /lustre/scratch/client/movian/research/users/hainn14/dataset/imagenet --MD 25.0
+WANDB_MODE=disabled python tools/train.py --cfg configs/imagenet/r34_r18/wkd_f25.yaml --dataset /lustre/scratch/client/movian/research/users/hainn14/dataset/imagenet --MD 25.0
