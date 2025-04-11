@@ -1,7 +1,7 @@
 #!/bin/bash -e
-#SBATCH --job-name=img_005inter
-#SBATCH --output=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_005inter.out
-#SBATCH --error=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_005inter.err
+#SBATCH --job-name=img_005multi
+#SBATCH --output=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_005multi.out
+#SBATCH --error=/lustre/scratch/client/movian/research/users/hainn14/WKD/spp_noti/imagenet_005multi.err
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --mem-per-gpu=125G
