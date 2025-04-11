@@ -1,6 +1,6 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "wkd_f,res34,res18,lr0.1,wkd0.02,inter25.0"
+  TAG: "wkd_f,res34,res18,lr0.1,wkd0.02,inter0.01"
   PROJECT: "result_imagenet_wkd_interbatch"
 DATASET:
   TYPE: "imagenet"
@@ -30,7 +30,7 @@ WKD:
   HINT_LAYER: -1
   MEAN_COV_RATIO: 2.0
 LOG:
-  WANDB: False
+  WANDB: True
   TENSORBOARD_FREQ: 10
   SAVE_CHECKPOINT_FREQ: 20
 

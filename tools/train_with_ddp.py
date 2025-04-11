@@ -88,13 +88,13 @@ def main(cfg, resume, opts):
         experiment_name += ",".join(addtional_tags)
     experiment_name = os.path.join(cfg.EXPERIMENT.PROJECT, experiment_name)
     if cfg.LOG.WANDB:
-        try:
-            import wandb
-            os.makedirs('/media/ljm/mdistiller0414/', exist_ok=True)
-            wandb.init(project=cfg.EXPERIMENT.PROJECT, name=experiment_name, tags=tags, dir='/media/ljm/mdistiller/')
-        except:
-            print(log_msg("Failed to use WANDB", "INFO"))
-            cfg.LOG.WANDB = False
+        # try:
+        #     import wandb
+        #     os.makedirs('/media/ljm/mdistiller0414/', exist_ok=True)
+        #     wandb.init(project=cfg.EXPERIMENT.PROJECT, name=experiment_name, tags=tags, dir='/media/ljm/mdistiller/')
+        # except:
+        print(log_msg("Failed to use WANDB", "INFO"))
+        cfg.LOG.WANDB = False
 
     # cfg & loggers
     rank = int(os.environ['RANK'])

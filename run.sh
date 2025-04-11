@@ -11,4 +11,4 @@ CUDA_VISIBLE_DEVICES=0 python tools/train.py --cfg ./configs/imagenet/r50_mv1/wk
 # CUDA_VISIBLE_DEVICES=2,3 torchrun --master-port 25300 --nproc-per-node=2 tools/train_with_ddp.py --cfg ./configs/imagenet/r50_mv1/wkd_f.yaml
 
 
-CUDA_VISIBLE_DEVICES=0,2,3,6,7 torchrun --master-port 25300 --nproc-per-node=2 tools/train_with_ddp.py --cfg configs/imagenet/r34_r18/wkd_f1.yaml --MD 25.0
+CUDA_VISIBLE_DEVICES=0,2,3,6,7 torchrun --master-port 25300 --nproc-per-node=5 tools/train_with_ddp.py --cfg configs/imagenet/r34_r18/wkd_f1.yaml --MD 1.0
