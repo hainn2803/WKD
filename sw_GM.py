@@ -1,5 +1,9 @@
 import torch 
 from ot import generate_uniform_unit_sphere_projections, Wasserstein_One_Dimension
+import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
+import numpy as np
+import matplotlib.cm as cm
 
 
 
@@ -37,7 +41,6 @@ def inter_batch_loss_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_projections=1000
 
 
 
-
 def inter_batch_loss_multilevel_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_projections=10000, num_inner_projections=1000, p=2):
     """
         Compute Sliced Wasserstein between two Mixture of Gaussians
@@ -69,6 +72,9 @@ def inter_batch_loss_multilevel_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_proje
         prod_mu2s = torch.matmul(mu2s, theta.transpose(0, 1)) # [batch_size, num_gaussians, chunk]
         prod_Sigma1s = torch.sqrt(torch.matmul(Sigma1s, (theta**2).transpose(0, 1))) # [batch_size, num_gaussians, chunk]
         prod_Sigma2s = torch.sqrt(torch.matmul(Sigma2s, (theta**2).transpose(0, 1))) # [batch_size, num_gaussians, chunk]
+
+        del theta 
+
         X = torch.stack([prod_mu1s, torch.log(prod_Sigma1s)], dim=-1) # [batch_size, num_gaussians, chunk, 2]
         Y = torch.stack([prod_mu2s, torch.log(prod_Sigma2s)], dim=-1) # [batch_size, num_gaussians, chunk, 2]
         psi = generate_uniform_unit_sphere_projections(dim=2, num_projection=chunk, dtype=torch.float32, device=mu1s.device)
@@ -81,6 +87,8 @@ def inter_batch_loss_multilevel_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_proje
         prod_X_projection = torch.matmul(X_projection, psi.transpose(0, 1)) # [chunk, batch_size, num_inner_projections]
         prod_Y_projection = torch.matmul(Y_projection, psi.transpose(0, 1)) # [chunk, batch_size, num_inner_projections]
 
+        del psi
+
         X_sorted, _ = torch.sort(prod_X_projection, dim=1) # [chunk, batch_size, num_inner_projections]
         Y_sorted, _ = torch.sort(prod_Y_projection, dim=1) # [chunk, batch_size, num_inner_projections]
         diff_quantiles = torch.abs(X_sorted - Y_sorted) # [chunk, batch_size, num_inner_projections]
@@ -92,45 +100,60 @@ def inter_batch_loss_multilevel_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_proje
     return torch.pow(sw_chunk / num_projections, 1/p)
 
 
+
 if __name__ == "__main__":
 
-    batch_size = 16
-    dims = 8
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    num_mogs = 5
+    num_gaussians = 4
+    dims = 2
+    # Generate group: mỗi MoG có center riêng, các Gaussian quanh center
+    def generate_group(mean_shift):
+        mog_centers = torch.randn((num_mogs, dims)) + torch.tensor(mean_shift)
+        mu = mog_centers[:, None, :] + 0.3 * torch.randn((num_mogs, num_gaussians, dims))  # Gaussian gần nhau
+        sigma = torch.abs(torch.randn((num_mogs, num_gaussians, dims))) * 0.2 + 0.2
+        return mu, sigma
 
-    # Generate random means and (diagonal) covariances for two batches of Gaussians
-    mu1s = torch.randn((batch_size, dims), device=device)
-    mu2s = torch.randn((batch_size, dims), device=device)
+    mu1, sigma1 = generate_group([0.0, 0.0])
+    mu2, sigma2 = generate_group([8.0, 8.0])
+    mu3, sigma3 = generate_group([-4.0, 4.0])
 
-    # Ensure positive variances (diagonal covariances)
-    Sigma1s = torch.abs(torch.randn((batch_size, dims), device=device)) + 1e-3
-    Sigma2s = torch.abs(torch.randn((batch_size, dims), device=device)) + 1e-3
+    # Plotting helper
+    def plot_ellipse(ax, mean, sigma, color, alpha=0.4):
+        ellipse = Ellipse(xy=mean, width=2*sigma[0], height=2*sigma[1],
+                        edgecolor=color, facecolor=color, alpha=alpha)
+        ax.add_patch(ellipse)
 
-    sw_dist = inter_batch_loss_gaussian(mu1s, Sigma1s, mu2s, Sigma2s, num_projections=1000, p=2)
-    print("Sliced Wasserstein distance:", sw_dist.item())
+    # Plot
+    fig, ax = plt.subplots(figsize=(10, 8))
+    cmap1 = cm.get_cmap('Blues', num_mogs + 2)
+    cmap2 = cm.get_cmap('Reds', num_mogs + 2)
+    cmap3 = cm.get_cmap('Greens', num_mogs + 2)
 
+    for group_idx, (mu_group, sigma_group, cmap, group_label) in enumerate([
+        (mu1, sigma1, cmap1, "Group 1"),
+        (mu2, sigma2, cmap2, "Group 2"),
+        (mu3, sigma3, cmap3, "Group 3")
+    ]):
+        for mog_idx in range(num_mogs):
+            color = cmap(mog_idx + 2)
+            for g_idx in range(num_gaussians):
+                mu = mu_group[mog_idx, g_idx]
+                sigma = sigma_group[mog_idx, g_idx]
+                ax.scatter(mu[0], mu[1], color=color, label=f"{group_label} - MoG {mog_idx+1}" if g_idx == 0 else "", s=40)
+                plot_ellipse(ax, mu, sigma, color)
 
-    batch_size = 8
-    dims = 16
-    num_gaussians = 5
-    num_projections = 500
-    num_inner_projections = 50
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    ax.set_title("Groups with Mixtures of Gaussians (Clustered Components)")
+    ax.set_xlabel("X axis")
+    ax.set_ylabel("Y axis")
+    ax.grid(True)
+    ax.legend(loc='upper left', fontsize=8)
+    plt.tight_layout()
+    plt.savefig("GM.png")
 
-    # Generate random multilevel means and diagonal covariances
-    mu1s = torch.randn((batch_size, dims, num_gaussians), device=device)
-    mu2s = torch.randn((batch_size, dims, num_gaussians), device=device)
+    sw_12 = inter_batch_loss_multilevel_gaussian(mu1s=mu1, Sigma1s=sigma1, mu2s=mu2, Sigma2s=sigma2, num_projections=10000, num_inner_projections=1000, p=2)
+    sw_23 = inter_batch_loss_multilevel_gaussian(mu1s=mu2, Sigma1s=sigma2, mu2s=mu3, Sigma2s=sigma3, num_projections=10000, num_inner_projections=1000, p=2)
+    sw_13 = inter_batch_loss_multilevel_gaussian(mu1s=mu1, Sigma1s=sigma1, mu2s=mu3, Sigma2s=sigma3, num_projections=10000, num_inner_projections=1000, p=2)
 
-    # Positive diagonal variances
-    Sigma1s = torch.abs(torch.randn((batch_size, dims, num_gaussians), device=device)) + 1e-3
-    Sigma2s = torch.abs(torch.randn((batch_size, dims, num_gaussians), device=device)) + 1e-3
-
-    # Call your function
-    sw_multi = inter_batch_loss_multilevel_gaussian(
-        mu1s, Sigma1s, mu2s, Sigma2s,
-        num_projections=num_projections,
-        num_inner_projections=num_inner_projections,
-        p=2
-    )
-
-    print("Sliced Wasserstein distance (multi-level):", sw_multi.item())
+    print(f"1-2: {sw_12}")
+    print(f"2-3: {sw_23}")
+    print(f"3-1: {sw_13}")
