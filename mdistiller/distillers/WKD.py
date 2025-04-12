@@ -182,7 +182,7 @@ def wkd_feature_loss_with_interbatch_multilevel(f_s, f_t, eps=1e-5, grid=1):
         f_s_std = f_s_std.reshape(batch_size, dim, -1)
         f_t_std = f_t_std.reshape(batch_size, dim, -1)
 
-        interbatch_cost = inter_batch_loss_multilevel_gaussian(mu1s=f_s_avg, Sigma1s=f_s_std**2, mu2s=f_t_avg, Sigma2s=f_t_std**2, num_projections=10000, num_inner_projections=100, p=2)
+        interbatch_cost = inter_batch_loss_multilevel_gaussian(mu1s=f_s_avg, Sigma1s=f_s_std**2, mu2s=f_t_avg, Sigma2s=f_t_std**2, num_projections=1000, num_inner_projections=100, p=2)
 
         return mean_loss, cov_loss, interbatch_cost
 
